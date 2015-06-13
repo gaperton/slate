@@ -7,11 +7,11 @@ toc_footers:
 includes:
   - overview
   - extend
-  - basic
-  - typespecs
-  - nestedbyvalue
-  - nestedbyreference
+  - model
+  - attributes
   - options
+  - collection
+  - store
   - errors
 
 search: true

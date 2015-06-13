@@ -1,4 +1,4 @@
-#Object+
+# Object.extend
 ## Overview
 
 NestedTypes core functionality relies on improved `Object.extend` function, which is also available as separate module

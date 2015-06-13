@@ -1,4 +1,4 @@
-#Overview
+# Getting Started
 ## What it is
 ```javascript
 var User = Nested.Model.extend({
@@ -6,8 +6,8 @@ var User = Nested.Model.extend({
 
     defaults : {
         // Primitive types
-        login    : String, // ""
-        email    : String.value( null ), // null
+        login    : "", // String
+        email    : String.value( null ), // null, but String
         loginCount : Number.has.toJSON( false ) // 0, not serialized
         active   : Boolean.value( true ), // true
 
@@ -22,7 +22,7 @@ var User = Nested.Model.extend({
     }
 });
 
-var collection = new User.Collection(); // Collection is already there...
+var collection = new User.Collection();
 collection.fetch().done( function(){
     var user = collection.first();
     console.log( user.name ); // native properties
@@ -34,22 +34,15 @@ collection.fetch().done( function(){
 [![Master Build Status](https://travis-ci.org/Volicon/backbone.nestedTypes.svg?branch=master)](https://travis-ci.org/Volicon/backbone.nestedTypes)
 [![Develop Build Status](https://travis-ci.org/Volicon/backbone.nestedTypes.svg?branch=develop)](https://travis-ci.org/Volicon/backbone.nestedTypes)
 
-NestedTypes is the type system for JavaScript, implemented on top of  Backbone. It solve common architectural problems of Backbone applications, providing simple yet powerful tools to deal with complex nested data structures. Brief feature list:
+NestedTypes is state-of-the-art backbonejs-compatible model framework. It gives you:
+* Performance. Compared to backbonejs, model updates are about 20 times faster in Chrome/nodejs, and 4 times faster in other browsers.
+* Safety. NestedTypes performs dynamic type casts on model update to ensure that attributes will always hold values of proper types.
+* Complex attribute types such as Date, nested models, and collections.
+* One-to-many and many-to-many model relationships.
 
-- Class and Integer types
-- *Native properties* for Model attributes, Collection, and Class.
-- Inline Collection definition syntax for Models.
-- Model.defaults inheritance and deep copying.
-- Type declarations and automatic type casts for Model attributes.
-- Easy handling of Date attributes.
-- *Nested models* and collections.
-- *One-to-many* and *many-to-many* models relations.
-- 'change' event bubbling for nested models and collections.
-- Attribute-level control for parse/toJSON and event bubbling.
-- Run-time type error detection and logging.
+It's achieved with attribute type annotations, which feels much like statically typed programming language. Yet, this annotations are vanilla JavaScript, no transpiler step is required.
 
-
-It feels much like statically typed programming language. Yet, it's vanilla JavaScript.
+NestedTypes was originally designed with an idea to make backbonejs more comfortable for newbiews. In short, we took  intuitive newbie approach to backbonejs, and turn it from the mistake to legal way of doing things.
 
 > Types are being checked in run-time on assignment, but instead of throwing exceptions it tries to cast values to defined types.
 
@@ -66,11 +59,6 @@ It feels much like statically typed programming language. Yet, it's vanilla Java
     user.settings = { timeZone : 180 }; // same as user.settings.set({ timeZone : 180 })
     console.assert( user.settings instanceof Settings );
 ```
-## Why
-
-## Features
-
-## Performance
 
 ## Installation & Requirements
 > CommonJS (node.js, browserify):
