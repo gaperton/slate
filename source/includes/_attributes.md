@@ -367,6 +367,7 @@ If master collection is empty and thus reference cannot be resolved, it will def
 Attribute is count as changed only when different model or id is assigned.
 
 ### Collection.subsetOf
+
 `Collection.subsetOf` is a collection of models taken from other 'master' collection. On first access, it will resolve model ids to real models using master collection for lookups.
 
 If master collection is empty and thus references cannot be resolved, it will defer id resolution and just return empty collection. If master collection is not empty, it will filter out ids of non-existent models.

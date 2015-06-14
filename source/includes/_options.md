@@ -52,6 +52,23 @@ Function accepts attribute's `name` and its current `value`, and will be execute
 
 Passing `false` option will prevent attribute's serialization.
 
+## .parse( function( value, name ) )
+```javascript
+var M = Nested.Model.extend({
+    defaults : {
+        a : Type.has.parse( function( value ){
+            return Type.factory( value );
+        })
+    }
+});
+```
+
+Attribute-specific `parse` logic, will be executed after model's `parse` method.
+
+Function accepts attribute's `name` and response `value`, and will be executed in the context of the model, holding an attribute.
+
+This option is useful to parse abstract model attributes, or handle non-standard format of specific attributes.
+
 ## .get( function( value, name ) )
 ```javascript
 var M = Nested.Model.extend({
