@@ -35,6 +35,7 @@ collection.fetch().done( function(){
 [![Develop Build Status](https://travis-ci.org/Volicon/backbone.nestedTypes.svg?branch=develop)](https://travis-ci.org/Volicon/backbone.nestedTypes)
 
 NestedTypes is state-of-the-art backbonejs-compatible model framework. It gives you:
+
 * Performance. Compared to backbonejs, model updates are about 20 times faster in Chrome/nodejs, and 4 times faster in other browsers.
 * Safety. NestedTypes performs dynamic type casts on model update to ensure that attributes will always hold values of proper types.
 * Complex attribute types such as Date, nested models, and collections.

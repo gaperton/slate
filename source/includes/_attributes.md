@@ -236,27 +236,63 @@ In NestedTypes Every <b>Model</b> type has corresponding <b>Collection</b> type,
 referenced as <b>Model.Collection</b>.
 </aside>
 
+### Inline nested Models and Collections definitions
+
+> Inline nested definitions
+
+```javascript
+var M = Nested.Model.extend({
+    defaults :{
+        // define model extending base Nested.Model
+        nestedModel : Nested.defaults({
+            a : 1,
+            //define model extending specified model
+            b : MyModel.defaults({
+                // define collection of nested models
+                items : Nested.Collection.defaults({
+                    a : 1,
+                    b : 2
+                })
+
+            })
+        })
+    }
+})
+
+```
+
+Simple models and collections can be defined with special shortened syntax.
+
+It's useful in case of deeply nested JS objects, when you previously preferred plain objects and arrays in place of models and collections. Now you could easily convert them to nested types, enjoying nested changes detection and 'deep update' features.
+
 ### Type casting
-> Deep update. This code:
+> Deep update example:
 
 ```javascript
 var user = new User();
-user.group = {
-    name: "Admin"
-};
 
+// Following assignment...
+user.group = { name: "Admin" };
+// ...is the same as this:
+user.group.set({ name: "Admin" });
+
+// Following assignment...
 user.permissions = [{ id: 5, type: 'full' }];
-```
-
-> is equivalent of:
-
-```javascript
-user.group.set({
-   name: "Admin"
-};
-
+// ...is the same as this:
 user.permissions.set( [{ id: 5, type: 'full' }] );
+
+// Following assignment...
+user.group = {
+    nestedModel : {
+        deeplyNestedModel : { attr : 'value' },
+        attr : 5
+    }
+};
+// ...is the same as this, but fire single 'change' event
+user.group.nestedModel.deeplyNestedModel.attr = 'value';
+user.group.nestedModel.attr = 'value';
 ```
+
 
 When `Model` or `Collection` attribute is assigned with the value...
 
@@ -266,52 +302,33 @@ When `Model` or `Collection` attribute is assigned with the value...
     * ...is `null`, new model or collection will be created taking value as constructor argument.
     * ...is existing model or collection, update will be delegated to its `set` method performing `deep update`.
 
-`Deep update` means that model or collection object itself will remain in place, and `set` method will be used to perform an update.
-
 ### Serialization
-
-> Deep update:
-
-```javascript
-user.group = {
-    nestedModel : {
-        deeplyNestedModel : {
-            attr : 'value'
-        },
-
-        attr : 5
-    }
-};
-```
-
->is equivalent of two assignments, but fire single base model change event:
-
-```javascript
-user.group.nestedModel.deeplyNestedModel.attr = 'value';
-user.group.nestedModel.attr = 'value';
-```
 
 Nested models and collections are serialized as nested JSON. When JSON response is received, they are being constructed or updated according to type case rules.
 
-Change events will be bubbled from nested models and collections.
-- `change` and `change:attribute` events for any changes in nested models and collections. Multiple `change` events from submodels during bulk updates are carefully joined together, which make it suitable to subscribe View.render to the top model's `change`.
-- `replace:attribute` event when model or collection is replaced with new object. You might need it to subscribe for events from submodels.
-- It's possible to control event bubbling for every attribute. You can completely disable it, or override the list of events which would be counted as change:
+### Change events bubbling
+
+> Event bubbling:
 
 ```javascript
 var M = Nested.Model.extend({
 	defaults: {
 		bubbleChanges : ModelOrCollection,
 
-		dontBubble : ModelOrCollection.options({ triggerWhanChanged : false })
+		dontBubble : ModelOrCollection.has.triggerWhanChanged( false )
 		}),
 
-		bubbleCustomEvents : ModelOrCollection.options({
-            triggerWhanChanged : 'event1 event2 whatever'
-		}),
+		bubbleCustomEvents : ModelOrCollection.has
+            .triggerWhanChanged( 'event1 event2 whatever' )
 	}
 });
 ```
+
+Change events will be bubbled from nested models and collections.
+
+* `change` and `change:attribute` events for any changes in nested models and collections. Multiple `change` events from submodels during bulk updates are carefully joined together, which make it suitable to subscribe View.render to the top model's `change`.
+* `replace:attribute` event when model or collection is replaced with new object. You might need it to subscribe for events from submodels.
+* It's possible to control event bubbling for every attribute. You can completely disable it, or override the list of events which would be counted as change:
 
 ## Model id references
 ```javascript
@@ -354,7 +371,8 @@ Attribute is count as changed only when different model or id is assigned.
 
 If master collection is empty and thus references cannot be resolved, it will defer id resolution and just return empty collection. If master collection is not empty, it will filter out ids of non-existent models.
 
-Collection.subsetOf supports some additional methods:
+`Collection.subsetOf` supports some additional methods:
+
 * addAll() - add all models from master collection.
 * removeAll() - same as reset().
 * toggle( modelOrId ) - toggle specific model in set.
@@ -364,6 +382,7 @@ Collection.subsetOf supports some additional methods:
 
 ### Master Collection
 Master collection reference may be:
+
 - direct reference to collection object
 - `string`, designating reference to the current model's member relative to 'this'.
 - `function`, which returns reference to collection and executed in the context of the model.
