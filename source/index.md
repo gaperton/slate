@@ -10,7 +10,6 @@ includes:
   - model
   - attributes
   - options
-  - collection
   - store
   - errors
 

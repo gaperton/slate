@@ -7,15 +7,15 @@ In `defaults` or `attributes`, you may specify attribute default value, its type
 attribute behavior. Refer to corresponding sections of the manual for details.
 
 <aside class="warning">
- Every model attribute you're going to use <b>must</b> be mentioned in <b>Model.defaults</b>
-</aside>
-
-<aside class="warning">
-<b>Model.defaults must</b> be an object. Functions are forbidden.
+ Every model attribute <b>must</b> be mentioned in <b>Model.defaults</b>
 </aside>
 
 When you try to set an attribute which doesn't have default value, you'll got an
 error in the console.
+
+<aside class="warning">
+<b>Model.defaults must</b> be an object. Functions are forbidden.
+</aside>
 
 ## model.defaults( [ attrs ], [ options ] )
 ```javascript
