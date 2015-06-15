@@ -7,11 +7,10 @@ In `defaults` or `attributes`, you may specify attribute default value, its type
 attribute behavior. Refer to corresponding sections of the manual for details.
 
 <aside class="warning">
- Every model attribute <b>must</b> be mentioned in <b>Model.defaults</b>
+Every model attribute <b>must</b> be mentioned in <b>Model.defaults</b>
 </aside>
 
-When you try to set an attribute which doesn't have default value, you'll got an
-error in the console.
+In NestedTypes, attribute declaration is mandatory. When you try to set an attribute which doesn't have default value, you'll got an error in the console.
 
 <aside class="warning">
 <b>Model.defaults must</b> be an object. Functions are forbidden.
@@ -50,14 +49,15 @@ error in the console.
     user.roles.push( 'admin' );
 ```
 
-NestedTypes automatically created `defaults` function from model attribute's spec.
-Base model attribute defaults will be inherited.
+NestedTypes automatically creates `defaults` function for every model
+from model attribute's spec. Base model attributes will be inherited.
+
+Following statement can be used to return every model to its original state:
+
+    `model.set( model.defaults() )`
 
 `defaults` function accepts optional `attrs` argument with attribute values hash
-and fills missing attributes with default values. So, following statement can be used to
-return every model to its original state:
-
-`model.set( model.defaults() )`
+and fills missing attributes with default values.
 
 ### default values deep cloning
 
@@ -77,11 +77,6 @@ merge base model's `defaults`.
 You don't need to do manual tricks for <b>defaults</b> inheritance.
 </aside>
 
-## model.id
-In NestedTypes, `model.id` is assignable property, linked to `model.attributes[ model.idAttribute ]`.
-
-`model.id = 5` has the same effect as `model.set( model.idAttribute, 5 )`
-
 ## model.attrName
 
 NestedTypes creates native property for every attribute.
@@ -98,11 +93,29 @@ faster than using <b>get</b> and <b>set</b>.
 You still might need to use `model.set` in cases when you want to set multiple attributes
 at once, or to pass some options.
 
+## model.id
+In NestedTypes, `model.id` is assignable property, linked to `model.attributes[ model.idAttribute ]`.
+
+`model.id = 5` has the same effect as `model.set( model.idAttribute, 5 )`
+
 ## model.properties
+```javascript
+var M = Nested.Model.extend({
+    defaults : {
+        a : 1
+    },
 
-Custom native properties specification. Refer to `Object.extend` manual section for details.
+    properties : {
+        b : function(){ return this.a + 1; }
+    }
+});
 
-Most typical use case is calculated properties.
+var m = new M();
+console.log( m.b ); // 2
+```
+Custom native properties specification. Most typical use case is calculated properties.
+
+`model.properties` is the part of `Object.extend` functionality. Refer to `Object.extend` manual section for details.
 
 ## model.set()
 
@@ -149,8 +162,8 @@ Set model value by dot-separated path. If model attribute in the middle of path 
 ## Model.Collection
 
 ```javascript
-var DetailedUserInfo = UserInfo.extend({
-    urlBase : '/api/detailed_user/',
+var UserInfo = Nested.Model.extend({
+    urlBase : '/api/user/',
 
     defaults : {
         login : '',
@@ -163,12 +176,16 @@ var DetailedUserInfo = UserInfo.extend({
         }
     }
 });
+
+var collection = new UserInfo.Collection();
 ```
 
-Every model definition has its own correct `Collection` type extending base `Model.Collection`.
- `Collection.model` and `Collection.url` properties are taken from model.
+Every model definition has its own correct `Collection` type extending base `Model.Collection`, which can be
+accessed instantly without declaration. `Collection.model` and `Collection.url` properties are taken from model.
 
-You could customize collection providing the spec in `Model.collection`, which then will be passed to `BaseModel.Collection.extend`.
+    `var collection = new AnyModel.Collection();`
+
+You could customize collection definition providing the spec in `Model.collection`, which then will be passed to `BaseModel.Collection.extend`.
 
 ## Model.define()
 ```javascript
@@ -180,13 +197,31 @@ Tree.define({
     }
 });
 ```
+Forward declarations makes possible type-accurate recursive and mutually recursive model definitions.
 
-Part of `Object.extend` forward declaration syntax. Refer to `Object.extend` manual section for details.
-
-Forward declarations makes possible type-accurate recursive model definitions.
+`Model.define` is the part of `Object.extend` functionality. Refer to `Object.extend` manual section for details.
 
 ## Serialization
-### model.toJSON()
+### model.toJSON
+```javascript
+var M = Nested.Model.extend({
+    defaults : {
+        // Attribute-level toJSON.
+        a : String.has.toJSON( false ),
+        b : 5
+    },
+
+    // Model-level toJSON.
+    toJSON : function(){
+        // Call NestedTypes serialization algorithm.
+        var json = Nested.Model.prototype.toJSON.apply( this, arguments );
+
+        // Do some json transformations...
+
+        return json;
+    }
+});
+```
 
 All nested attributes will be serialized automatically.
 
@@ -196,13 +231,15 @@ Normally, you don't need to override this method.
 
 You can control serialization of any attribute with `toJSON` attribute option. Most typical use case is to exclude attribute from those which are being sent to the server.
 
-### model.parse()
+### model.parse
 ```javascript
 var M = Nested.Model.extend({
     defaults : {
+        // Attribute-level parse transform.
         a : AbstractModel.has.parse( AbstractModel.factory )
     },
 
+    // Model-level parse transform.
     parse : function( resp ){
         // Do some resp transformations...
 
@@ -210,7 +247,6 @@ var M = Nested.Model.extend({
         return this._parse( resp );
     }
 });
-
 ```
 All nested attributes will be parsed automatically.
 
@@ -218,11 +254,11 @@ All nested attributes will be parsed automatically.
 Normally, you don't need to override this method.
 </aside>
 
-You can control parsing of any attribute with `parse` attribute option. Most typical use case is to create proper model subclass for abstract model attribute.
+You can customize parsing of any attribute with `parse` attribute option. Most typical use case is to create proper model subclass for abstract model attribute.
 
-You may need to override parse in order to change attribute names or top-level format.
+You may need to override model-level `parse` function in order to change attribute names or top-level format.
 
 <aside class="warning">
-If you override <b>model.parse</b>,
-you have to call <b>this._parse<b> to make attribute's <b>parse option</b> work.
+If you override <b>model.parse</b>, you have to call <b>this._parse</b>
+(or Nested.Model.prototype.parse) to make attribute's <b>parse option</b> work.
 </aside>
