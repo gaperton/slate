@@ -190,18 +190,39 @@ Forward declarations makes possible type-accurate recursive model definitions.
 
 All nested attributes will be serialized automatically.
 
-<aside class="warning">
+<aside class="notice">
 Normally, you don't need to override this method.
 </aside>
 
 You can control serialization of any attribute with `toJSON` attribute option. Most typical use case is to exclude attribute from those which are being sent to the server.
 
 ### model.parse()
+```javascript
+var M = Nested.Model.extend({
+    defaults : {
+        a : AbstractModel.has.parse( AbstractModel.factory )
+    },
 
+    parse : function( resp ){
+        // Do some resp transformations...
+
+        // (!) Call attribute-level parse transform (!)
+        return this._parse( resp );
+    }
+});
+
+```
 All nested attributes will be parsed automatically.
 
-<aside class="warning">
+<aside class="notice">
 Normally, you don't need to override this method.
 </aside>
 
 You can control parsing of any attribute with `parse` attribute option. Most typical use case is to create proper model subclass for abstract model attribute.
+
+You may need to override parse in order to change attribute names or top-level format.
+
+<aside class="warning">
+If you override <b>model.parse</b>,
+you have to call <b>this._parse<b> to make attribute's <b>parse option</b> work.
+</aside>
