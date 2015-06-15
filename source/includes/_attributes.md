@@ -352,19 +352,22 @@ assert( user.roles.first() instanceof Role );
 assert( user.location.name === "Boston" );
 ```
 
-Sometimes when you have one-to-many and many-to-many relationships between models, it is suitable to transfer such a relationships from server as arrays of model ids. NestedTypes gives you special attribute data types for this situation.
+Sometimes it is suitable to serialize model references as an id or an array of ids.
+
+NestedTypes provides special attribute data types to transparently handle this situation, as if you
+would work with normal nested models and collections.
 
 ### Model.from
 
 `Model.from` represent reference to the model from existing collection, which is serialized as model id.
 
-`ref : Model.from( masterCollection )`
+    `ref : Model.from( masterCollection )`
 
 Attribute may be assigned with model id or model itself. On `get, attribute behaves as Model type. Model id will be resolved to model on first attribute read attempt.
 
 If master collection is empty and thus reference cannot be resolved, it will defer id resolution and `get` will return `null`. If master collection is not empty, id will be resolved to model from this collection, or `null` if corresponding model doesn't exists.
 
-Attribute is count as changed only when different model or id is assigned.
+Attribute counts as changed only when different model or id is assigned.
 
 ### Collection.subsetOf
 
