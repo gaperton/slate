@@ -109,6 +109,27 @@ Multiple set hooks are chainable, and will be applied in specified order.
 
 Returned value will be casted to attribute's type applying standard convertion rules. So, it's guaranteed that attribute's value will always hold the correct type.
 
+## .check( predicate, [ error ] )
+```javascript
+var M = Nested.Model.extend({
+    defaults : {
+        a : Number.has.check( x => x > 0 ),
+        b : Number.has.check( x => x > 0, 'b should be positive' ),
+        queue : Collection.has
+                .check( x => x && x.length, 'Queue should not be empty' )
+                .check( x => x.length <= 5, 'Not more than 5 elements in the queue' )
+    }
+});
+```
+
+Add validator to an attribute. Validators will be checked on `model.save`,
+`model.isValid()`, and first access to `model.validationError`.
+
+Validator may contain optional error message. Validators can be chained; in this
+ case they are executed in sequence, until first one will fail.
+
+See `validation` section for details.
+
 ## .events( eventsMap )
 ```javascript
 var M = Nested.Model.extend({
@@ -124,12 +145,12 @@ var M = Nested.Model.extend({
 
 Automatically manage events subscription for nested attribute, capable of sending events. Event handlers will be called in the context of of the parent model.
 
-## .triggerWhenChanged( String | false )
+## .changeEvents( String | false )
 ```javascript
 var M = Nested.Model.extend({
     defaults : {
-        a : ModelA.has.triggerWhenChanged( 'change myEvent' ),
-        b : ModelB.has.triggerWhenChanged( false ),
+        a : ModelA.has.changeEvents( 'change myEvent' ),
+        b : ModelB.has.changeEvents( false ),
     }
 });
 ```

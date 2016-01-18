@@ -363,7 +363,7 @@ would work with normal nested models and collections.
 
     `ref : Model.from( masterCollection )`
 
-Attribute may be assigned with model id or model itself. On `get, attribute behaves as Model type. Model id will be resolved to model on first attribute read attempt.
+Attribute may be assigned with model id or model itself. On `get`, attribute behaves as Model type. Model id will be resolved to model on first attribute read attempt.
 
 If master collection is empty and thus reference cannot be resolved, it will defer id resolution and `get` will return `null`. If master collection is not empty, id will be resolved to model from this collection, or `null` if corresponding model doesn't exists.
 
