@@ -1,6 +1,10 @@
 # Record
 
+Record is the main building block for 
+
 ## attributes
+
+
 
 ## initialize( attrs?, options? )
 
@@ -21,3 +25,5 @@
 ## deepGet( path )
 
 ## deepSet( path )
+
+## transactional methods

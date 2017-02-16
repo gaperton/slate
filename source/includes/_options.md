@@ -1,25 +1,52 @@
-# Attribute options
-## Type.has
+# Attribute metatypes
+
+Record's attributes specification may contain additional metadata controlling
+different aspects of attribute's behavior, such as:
+
+* default value
+* attribute's serialization
+* reactions on attribute's changes
+* custom events subscribtion
+* etc.
+
+ Object representing these metadata along
+with attribute type is called _metatype_.
 
 ```javascript
-var M = Nested.Model.extend({
-    defaults : {
-        attr : Date.has
-                .value( null )
-                .toJSON( false )
+@define
+class M extends Record {
+    static attributes = {
+        time : Date.has.value( null ).toJSON( false )
     }
-});
+}
 ```
 
-Attribute options spec gives you to customize different aspects of attribute behavior, such as:
+`Constructor.has` is used to create metatype wrapping every particular contructor function,
+which can be populated with metadata using the chaiable calls of metatypes API.
 
-* attribute serialization control
-* nested changes detection
-* attribute's get and set
+In the example on the right there is `time` attribute defined of type Date, having the default value
+`null`; it is excluded from serializaion.
 
- `.value` is an example of attribute option. In order to get access to other options you need to use keyword `.has`. Options specs are chainable, you can specify any sequence of options separated by dot.
+```javascript
+const ipPattern = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
-## .value( value )
+const IPAddress = String.has.check( x => !x || ipPattern.test( x ), 'Not valid IP address' ),
+      Port = Number.has.check( x => !x || x >= 0 && x <= 65535, 'Must be between 0 and 65535' );
+
+@define
+class Server extends Record {
+    static attributes = {
+        ip : IPAddress.isRequired,
+        port : Port.value( null )
+    }
+}
+```
+
+Metatypes are _immutable_ (every chained call will create new metatype), which means that you 
+can create _reusable metatypes_. As in the `Server` example with `IPAddress` which is string with 
+custom validation, and the `Port` which is the number with a range check.
+
+## .has.value( value )
 ```javascript
 var M = Nested.Model.extend({
     defaults : {
@@ -28,31 +55,31 @@ var M = Nested.Model.extend({
     }
 });
 ```
+
 Attribute's default value. On model construction, `value` will be casted to `Type` applying usual type casting rules.
 
 <aside class="notice">
 `.value` option may be used without leading `.has`.
 </aside>
 
-## .toJSON( function( value, name ) | false )
-```javascript
-var M = Nested.Model.extend({
-    defaults : {
-        a : Type.has.toJSON( function( value, name ){
-            return value.text;
-        }),
+## .has.toJSON( ( value, name ) => any | false )
 
+```javascript
+@define
+class M extends Model {
+    static attributes = {
+        a : Type.has.toJSON( x => x.text ),
         b : Type.has.toJSON( false )
     }
-});
+}
 ```
-When attribute will be serialized as a part of model, given function will be used *instead* of attribute's toJSON.
 
-Function accepts attribute's `name` and its current `value`, and will be executed in the context of the model, holding an attribute.
+Overrides the default serialization for the given attribute.
+Given function will be executed in the context of the record.
 
-Passing `false` option will prevent attribute's serialization.
+Passing `false` will prevent attribute's serialization.
 
-## .parse( function( value, name ) )
+## .parse( ( value, name ) => any )
 ```javascript
 var M = Nested.Model.extend({
     defaults : {
@@ -63,30 +90,28 @@ var M = Nested.Model.extend({
 });
 ```
 
-Attribute-specific `parse` logic, will be executed after model's `parse` method.
+Perform custom value transformation before assignment if `{ parse : true }` transaction option
+is set. `parse` option is set automatically when doing REST I/O, and can be set manually as well.
+Check `set( data, options? )` method documentation for the `Record` and `Collection`.
 
-Function accepts attribute's `name` and response `value`, and will be executed in the context of the model, holding an attribute.
+Given function will be executed in the context of the record.
 
-This option is useful to parse abstract model attributes, or handle non-standard format of specific attributes.
-
-## .get( function( value, name ) )
+## .has.get( ( value, name ) => any )
 ```javascript
-var M = Nested.Model.extend({
-    defaults : {
-        a : Type.has.get( function( value, name ){
-            return value;
-        })
+@define
+class M extends Model {
+    static attributes = {
+        a : Number.has.get( value => value + 1 )
     }
-});
+}
 ```
 
-Called during `model.get( 'a' )` or `model.a` in the context of the model, allowing you to modify value which  will be returned without altering attribute itself.
+Transform the returned value on attribute's read. Does not modify actual value stored in the record.
 
-Get hook function accepts attribute's `name` and its current `value`, and returns modified value.
-
+Given function will be executed in the context of the record.
 Multiple get hooks are chainable, and will be applied in specified order.
 
-## .set( function( value, name ) )
+## .has.set( function( value, name ) )
 ```javascript
 var M = Nested.Model.extend({
     defaults : {
@@ -161,25 +186,3 @@ Makes sense only for Model and Collection attributes.
 Override default list of events used for nested changes detection of selected attribute.
 
 Pass `false` option to disable nested changes detection for this attribute.
-
-## Nested.attribute([ optionsHash ])
-```javascript
-var M = Nested.Model.extend({
-    defaults : {
-        a : Nested.attribute({
-            value : null,
-            toJSON : false
-        }),
-
-        b : Nested.attribute()
-                .value( null )
-                .toJSON( false )
-    }
-});
-```
-
-`Nested.attribute` function returns attribute spec as it appears after `.has`, optionally accepting set of options as a hash.
-
-<aside class="notice">
-It provides a way to pass options to typeless attributes.
-</aside>
