@@ -6,6 +6,11 @@ toc_footers:
 
 includes:
   - overview
+  - tools
+  - record
+  - mixable
+  - messenger
+  - transactional
   - extend
   - model
   - attributes
