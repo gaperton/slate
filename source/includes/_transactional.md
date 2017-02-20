@@ -1,4 +1,4 @@
-# Transactional
+# Record and Collection
 
 ```
   Transactional  <- Messenger <- Mixable
@@ -7,18 +7,17 @@
 Record     Collection
 ```
 
-Abstract base class for the Record and Collection
-representing their common functionality related to 
-execution of transactions, serialization, and validation on the object trees.
+There's the set of common functionality for a `Record` and `Collection`
+which relates to their behavior as a part of ownership tree.
 
-- as a Messenger, can send and receive events.
-- can be a part of ownership tree.
-- can be transactionally changed.
+- as a Messenger, it can send and receive events.
+- it can be a part of ownership tree.
+- it can be transactionally changed.
 - notifies listeners and owner on changes.
 - can be serialized to JSON.
 - can be validated.
 
-### Ownership tree
+## Ownership tree
 
 dede
 
