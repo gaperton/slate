@@ -339,6 +339,6 @@ var Tweets = Backbone.Collection.extend({
 });
 ```
 
-## clone() 
+## clone()
 
 Returns a new instance of the collection with an identical list of models.
